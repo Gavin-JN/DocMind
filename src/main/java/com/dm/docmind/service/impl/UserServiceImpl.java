@@ -11,6 +11,9 @@ import org.springframework.stereotype.Service;
 
 import java.security.NoSuchAlgorithmException;
 
+/**
+ * @author mao19
+ */
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -42,9 +45,9 @@ public class UserServiceImpl implements UserService {
         if (userMapper.exists(queryWrapper)) {
             User user1 = userMapper.selectOne(queryWrapper);
             String salt = user1.getSalt();
-            String password = user.getPassword();
-            String hashPwd = hashPassword.SHA256Gener(user.getUserId(), salt);
-            if (hashPwd.equals(password)) {
+            String inputPassword = user.getPassword();
+            String hashPwd = hashPassword.SHA256Gener(inputPassword, salt);
+            if (hashPwd.equals(user1.getPassword())) {
                 return CommonResponse.createForSuccess();
             } else {
                 return CommonResponse.createForError("user password does not match");

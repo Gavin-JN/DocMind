@@ -1,7 +1,9 @@
 package com.dm.docmind.assistant;
 
+//import com.dm.docmind.config.ChatMemoryPvdFactory;
 import com.dm.docmind.config.ContentRetrieverFactory;
 import dev.langchain4j.community.model.dashscope.QwenStreamingChatModel;
+import dev.langchain4j.mcp.McpToolProvider;
 import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import dev.langchain4j.service.AiServices;
@@ -27,7 +29,9 @@ public class DMAgentFactory {
 
     private ContentRetriever contentRetriever;
 
+
     public DMAgent createAgent(String userId) {
+
 
         contentRetriever = contentRetrieverFactory.getContentRetriever(userId);
 
@@ -35,6 +39,7 @@ public class DMAgentFactory {
                 .streamingChatModel(qwenStreamingChatModel)
                 .chatMemoryProvider(chatMemoryProvider)
                 .contentRetriever(contentRetriever)
+//                .toolProvider(mcpToolProvider)
                 .build();
     }
 

@@ -18,10 +18,10 @@ public class test {
 
     @Test
     public void test() {
-        uploadText.UploadKnowledgeLibraryByPath("C:\\Users\\mao19\\Desktop\\tt.txt","001");
-        factory.createAgent("001").chat(2L, "我的名字是什么？")
-                .doOnNext(System.out::println)   // 打印每条流式返回的内容
-                .blockLast();                    // 阻塞直到流结束
+        uploadText.UploadKnowledgeLibraryByPath("C:\\Users\\mao19\\Desktop\\test.docx","001");
+//        factory.createAgent("001").chat(2L, "我的名字是什么？")
+//                .doOnNext(System.out::println)   // 打印每条流式返回的内容
+//                .blockLast();                    // 阻塞直到流结束
     }
 
     @Test

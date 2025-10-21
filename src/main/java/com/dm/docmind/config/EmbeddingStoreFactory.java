@@ -17,7 +17,13 @@ public class EmbeddingStoreFactory {
     /**
      * 根据用户ID创建对应的 EmbeddingStore（对应不同 namespace）
      */
+
+
+
     public EmbeddingStore<TextSegment> createForUser(String userId) {
+
+
+
         return PineconeEmbeddingStore.builder()
                 .apiKey(System.getenv("PINECONE_KEY"))
                 .index("dmmind-index") // ✅ 所有用户共用一个 Pinecone Index

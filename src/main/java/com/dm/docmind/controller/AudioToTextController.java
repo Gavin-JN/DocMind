@@ -3,15 +3,18 @@ package com.dm.docmind.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dm.docmind.commonResponse.CommonResponse;
-import com.dm.docmind.context.GlobalUserContext;
+//import com.dm.docmind.context.GlobalUserContext;
 import com.dm.docmind.embedding.UploadText;
 import com.dm.docmind.tool.OssUploader;
 import com.dm.docmind.tool.TingwuTranscriptionUtil;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.multipart.MultipartFile;
 
 @CrossOrigin(origins = "*")
 @RequestMapping("/toText")
@@ -21,18 +24,33 @@ public class AudioToTextController {
     @Autowired
     private UploadText uploadText;
 
+    @PostMapping("/upload")
+    public CommonResponse<Object> uploadAudio(@RequestParam MultipartFile file,HttpSession session) {
+        try {
+            // 保存上传的音频文件到临时目录
+            String fileName = file.getOriginalFilename();
+            String tempDir = System.getProperty("java.io.tmpdir");
+            String filePath = tempDir + "/" + fileName;
+
+            file.transferTo(new java.io.File(filePath));
+
+            // 调用转文字功能
+            return toText(filePath, 2,session);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return CommonResponse.createForError("音频上传失败: " + e.getMessage());
+        }
+    }
 
     @RequestMapping("/transform")
-    public CommonResponse<Object> toText(@RequestParam String filePath, @RequestParam int people) throws Exception {
+    public CommonResponse<Object> toText(@RequestParam String filePath, @RequestParam int people, HttpSession session) throws Exception {
         String fileUrl = OssUploader.uploadFile(
                 "oss-cn-beijing.aliyuncs.com",
-
-                System.getenv("TINGWU_ACCESS_KEY_ID"),     // AccessKeyId
+                System.getenv("TINGWU_ACCESS_KEY_ID"), // AccessKeyId
                 System.getenv("TINGWU_ACCESS_KEY_SECRET"), // AccessKeySecret
                 "my-bucket",
                 "audio/test.mp3",
-                filePath
-        );
+                filePath);
         String taskId = TingwuTranscriptionUtil.transcribe(fileUrl, 2);
         System.out.println("任务已提交，TaskId = " + taskId);
 
@@ -58,7 +76,7 @@ public class AudioToTextController {
                 System.out.println("✅ 转写结果：\n" + fullText);
 
                 try {
-                    String userId = GlobalUserContext.getUserId();
+                    String userId =session.getAttribute("userId").toString();
                     uploadText.UploadKnowledgeLibraryByText(fullText, userId);
                     return CommonResponse.createForSuccess();
                 } catch (Exception e) {
