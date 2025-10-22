@@ -1,0 +1,410 @@
+/* DocMind 个性化样式 */
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #5a67d8, #6b46c1);
+}
+
+/* 消息动画效果 */
+.message {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 按钮悬停效果增强 */
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* 输入框聚焦效果 */
+.chat-input:focus {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+/* 打字指示器增强 */
+.typing-dot {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+/* 侧边栏动画 */
+.sidebar {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 模态框动画 */
+.modal {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* 状态消息动画 */
+.status-message {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 响应式优化 */
+@media (max-width: 1200px) {
+    .message {
+        max-width: 85%;
+    }
+}
+
+@media (max-width: 768px) {
+    .message {
+        max-width: 95%;
+    }
+    
+    .chat-input {
+        font-size: 16px; /* 防止iOS缩放 */
+    }
+    
+    .btn {
+        padding: 0.75rem 1rem;
+    }
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+    body {
+        background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+    }
+    
+    .container {
+        background: rgba(45, 55, 72, 0.95);
+        color: #e2e8f0;
+    }
+    
+    .form-group input {
+        background: rgba(74, 85, 104, 0.8);
+        border-color: #4a5568;
+        color: #e2e8f0;
+    }
+    
+    .form-group input:focus {
+        border-color: #667eea;
+    }
+}
+
+/* 加载动画 */
+.loading {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 成功/错误状态颜色 */
+.status-success {
+    background: linear-gradient(135deg, #f0fff4, #c6f6d5);
+    border-color: #9ae6b4;
+    color: #22543d;
+}
+
+.status-error {
+    background: linear-gradient(135deg, #fed7d7, #feb2b2);
+    border-color: #feb2b2;
+    color: #742a2a;
+}
+
+/* 消息气泡阴影效果 */
+.message-content {
+    position: relative;
+}
+
+.message-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: inherit;
+    border-radius: inherit;
+    filter: blur(2px);
+    opacity: 0.3;
+    z-index: -1;
+}
+
+/* 头像发光效果 */
+.message-avatar {
+    position: relative;
+    overflow: hidden;
+}
+
+.message-avatar::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #667eea, #764ba2, #667eea);
+    border-radius: 50%;
+    z-index: -1;
+    animation: rotate 3s linear infinite;
+}
+
+@keyframes rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 发送按钮脉冲效果 */
+.send-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.send-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.send-btn:active::before {
+    width: 300px;
+    height: 300px;
+}
+
+/* 侧边栏按钮悬停效果 */
+.upload-btn {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.upload-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.upload-btn:hover::before {
+    left: 100%;
+}
+
+/* 模式切换按钮效果 */
+.mode-btn {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.mode-btn.active {
+    position: relative;
+}
+
+.mode-btn.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: inherit;
+    z-index: -1;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.8; }
+    50% { opacity: 0.4; }
+    100% { opacity: 0.8; }
+}
+
+/* 消息格式化样式 */
+.message-content strong {
+    color: #667eea;
+    font-weight: 600;
+}
+
+.message-content em {
+    color: #764ba2;
+    font-style: italic;
+}
+
+.message-content code {
+    background: #f1f5f9;
+    color: #e53e3e;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+.knowledge-section, .answer-section, .question-section {
+    background: rgba(102, 126, 234, 0.1);
+    border-left: 4px solid #667eea;
+    padding: 12px 16px;
+    margin: 12px 0 8px 0;
+    border-radius: 0 12px 12px 0;
+    font-size: 0.9em;
+    color: #4a5568;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.knowledge-section {
+    border-left-color: #48bb78;
+    background: linear-gradient(135deg, rgba(72, 187, 120, 0.1), rgba(56, 161, 105, 0.05));
+}
+
+.answer-section {
+    border-left-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.05));
+}
+
+.question-section {
+    border-left-color: #ed8936;
+    background: linear-gradient(135deg, rgba(237, 137, 54, 0.1), rgba(221, 107, 32, 0.05));
+}
+
+.knowledge-section i, .answer-section i, .question-section i {
+    margin-right: 8px;
+    font-size: 1.1em;
+}
+
+.knowledge-section i {
+    color: #48bb78;
+}
+
+.answer-section i {
+    color: #667eea;
+}
+
+.question-section i {
+    color: #ed8936;
+}
+
+/* 内容区域样式 */
+.question-content, .knowledge-content, .answer-content {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 8px 0 16px 0;
+    line-height: 1.7;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    word-wrap: break-word;
+    word-break: break-word;
+    min-height: 50px;
+    max-width: 500px;
+}
+
+.question-content {
+    border-left: 3px solid #ed8936;
+}
+
+.knowledge-content {
+    border-left: 3px solid #48bb78;
+}
+
+.answer-content {
+    border-left: 3px solid #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.02), rgba(118, 75, 162, 0.02));
+}
+
+/* 上传成功反馈样式 */
+.upload-success {
+    background: linear-gradient(135deg, #48bb78, #38a169);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: slideIn 0.3s ease-out;
+}
+
+.upload-success i {
+    font-size: 1.2em;
+}
+
+.upload-progress {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: slideIn 0.3s ease-out;
+}
+
+.upload-progress i {
+    animation: spin 1s linear infinite;
+}

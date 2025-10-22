@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocMind - 智能文档助手</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/custom.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            color: #4a5568;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo p {
+            color: #718096;
+            font-size: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .error-message {
+            color: #e53e3e;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .success-message {
+            color: #38a169;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1><i class="fas fa-brain"></i> DocMind</h1>
+            <p>智能文档助手，让知识触手可及</p>
+        </div>
+
+        <!-- 登录表单 -->
+        <div id="loginForm">
+            <form onsubmit="login(event)">
+                <div class="form-group">
+                    <label for="loginUserId">用户ID</label>
+                    <input type="text" id="loginUserId" name="userId" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">密码</label>
+                    <input type="password" id="loginPassword" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" id="loginBtn">
+                    <span id="loginText">登录</span>
+                    <span id="loginLoading" class="loading hidden"></span>
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="showRegister()">
+                    注册新账户
+                </button>
+            </form>
+            <div id="loginMessage"></div>
+        </div>
+
+        <!-- 注册表单 -->
+        <div id="registerForm" class="hidden">
+            <form onsubmit="register(event)">
+                <div class="form-group">
+                    <label for="registerUserId">用户ID</label>
+                    <input type="text" id="registerUserId" name="userId" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">密码</label>
+                    <input type="password" id="registerPassword" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" id="registerBtn">
+                    <span id="registerText">注册</span>
+                    <span id="registerLoading" class="loading hidden"></span>
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="showLogin()">
+                    返回登录
+                </button>
+            </form>
+            <div id="registerMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentUserId = null;
+
+        function showRegister() {
+            document.getElementById('loginForm').classList.add("hidden");
+            document.getElementById('registerForm').classList.remove("hidden")
+            clearMessages();
+        }
+
+        function showLogin() {
+            document.getElementById('registerForm').classList.add("hidden");
+            document.getElementById('loginForm').classList.remove("hidden");
+            clearMessages();
+        }
+
+        function clearMessages() {
+            document.getElementById('loginMessage').innerHTML = '';
+            document.getElementById('registerMessage').innerHTML = '';
+        }
+
+        function showLoading(buttonId, textId, loadingId) {
+            document.getElementById(buttonId).disabled = true;
+            document.getElementById(textId).classList.add('hidden');
+            document.getElementById(loadingId).classList.remove('hidden');
+        }
+
+        function hideLoading(buttonId, textId, loadingId) {
+            document.getElementById(buttonId).disabled = false;
+            document.getElementById(textId).classList.remove('hidden');
+            document.getElementById(loadingId).classList.add('hidden');
+        }
+
+        function showMessage(elementId, message, isError = false) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="${isError ? 'error-message' : 'success-message'}">${message}</div>`;
+        }
+
+        async function login(event) {
+            event.preventDefault();
+            showLoading('loginBtn', 'loginText', 'loginLoading');
+            
+            const formData = new FormData(event.target);
+            const userId = formData.get('userId');
+            const password = formData.get('password');
+
+            try {
+                const response = await fetch('/account/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `userId=${encodeURIComponent(userId)}&password=${encodeURIComponent(password)}`
+                });
+
+                const result = await response.json();
+                
+                if (result.status === 0) {
+                    currentUserId = userId;
+                    showMessage('loginMessage', '登录成功！正在跳转...', false);
+                    setTimeout(() => {
+                        window.location.href = '/chat';
+                    }, 1000);
+                } else {
+                    showMessage('loginMessage', result.message || '登录失败', true);
+                }
+            } catch (error) {
+                showMessage('loginMessage', '网络错误，请重试', true);
+            } finally {
+                hideLoading('loginBtn', 'loginText', 'loginLoading');
+            }
+        }
+
+        async function register(event) {
+            event.preventDefault();
+            showLoading('registerBtn', 'registerText', 'registerLoading');
+            
+            const formData = new FormData(event.target);
+            const userId = formData.get('userId');
+            const password = formData.get('password');
+
+            try {
+                const response = await fetch('/account/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `userId=${encodeURIComponent(userId)}&password=${encodeURIComponent(password)}`
+                });
+
+                const result = await response.json();
+                
+                if (result.status === 0) {
+                    showMessage('registerMessage', '注册成功！请登录', false);
+                    setTimeout(() => {
+                        showLogin();
+                    }, 1500);
+                } else {
+                    showMessage('registerMessage', result.message || '注册失败', true);
+                }
+            } catch (error) {
+                showMessage('registerMessage', '网络错误，请重试', true);
+            } finally {
+                hideLoading('registerBtn', 'registerText', 'registerLoading');
+            }
+        }
+    </script>
+</body>
+</html>

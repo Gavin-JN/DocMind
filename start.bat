@@ -1,0 +1,9 @@
+@echo off
+echo 启动 DocMind 智能文档助手...
+echo.
+echo 正在检查Java环境...
+java -version
+echo.
+echo 正在启动应用...
+mvn spring-boot:run
+pause
