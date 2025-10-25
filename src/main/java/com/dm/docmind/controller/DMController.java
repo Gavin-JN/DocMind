@@ -6,13 +6,17 @@ import com.dm.docmind.commonResponse.CommonResponse;
 //import com.dm.docmind.context.GlobalUserContext;
 import com.dm.docmind.embedding.UploadText;
 import com.dm.docmind.entity.ChatForm;
+import com.dm.docmind.entity.Knowledge;
 import com.dm.docmind.mongo.MongoChatMemoryStore;
+import com.dm.docmind.service.KnowledgeService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
+
+import java.util.List;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -28,6 +32,9 @@ public class DMController {
 
     @Autowired
     private MongoChatMemoryStore chatMemoryStore;
+
+    @Autowired
+    private KnowledgeService knowledgeService;
 
 
     @PostMapping("/loadFile")
@@ -90,5 +97,25 @@ public class DMController {
         String userId = session.getAttribute("userId").toString();
         return factory.createAgent(userId).onlineChat(chatForm.getMemoryId(), chatForm.getMessage());
     }
+
+//    得到给用户对应的所有knowledge
+    @GetMapping("/knowledges")
+    public CommonResponse<Object> getAllKnowledges(HttpSession session) {
+        String userId = session.getAttribute("userId").toString();
+        List<Knowledge> knowledges=knowledgeService.getAllKonwledegsByUserId(userId);
+        return CommonResponse.createForSuccess(knowledges);
+    }
+
+    @DeleteMapping("/knowledges")
+    public CommonResponse<Object> deleteKnowledges(@RequestParam String knowledgeName,HttpSession session) {
+        String userId = session.getAttribute("userId").toString();
+        if(knowledgeService.removeKnowledgeByUserIdAndKnowledgeName(userId, knowledgeName)){
+            return CommonResponse.createForSuccess();
+        }else {
+            return CommonResponse.createForError();
+        }
+    }
+
+
 
 }
