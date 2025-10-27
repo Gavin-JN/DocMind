@@ -11,7 +11,7 @@ public class Knowledge {
     @TableField("knowledgeName")
     String knowledgeName;
     @TableField("sequence")
-    int index;
+    int sequence;
 
     public String getUserId() {
         return userId;
@@ -38,10 +38,10 @@ public class Knowledge {
     }
 
     public int getIndex() {
-        return index;
+        return sequence;
     }
 
-    public void setIndex(int index) {
-        this.index = index;
+    public void setIndex(int sequence) {
+        this.sequence = sequence;
     }
 }

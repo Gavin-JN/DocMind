@@ -438,6 +438,93 @@
                 white-space: pre-wrap; /* 长代码自动换行 */
             }
         }
+
+        .knowledge-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .knowledge-item:hover {
+            background: #edf2f7;
+            border-color: #cbd5e0;
+        }
+
+        .knowledge-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .knowledge-name {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 1rem;
+        }
+
+        .knowledge-meta {
+            font-size: 0.85rem;
+            color: #718096;
+        }
+
+        .knowledge-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            color: #e53e3e;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-icon:hover {
+            background: #fed7d7;
+        }
+
+        .empty-knowledge {
+            text-align: center;
+            padding: 3rem;
+            color: #718096;
+        }
+
+        .empty-knowledge i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .knowledge-item {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .knowledge-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+
+            .modal-content {
+                max-width: 95%;
+                padding: 1rem;
+            }
+
+            #knowledgeList {
+                max-height: 300px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -452,8 +539,8 @@
             <button class="btn btn-primary" onclick="showUploadModal()">
                 <i class="fas fa-upload"></i> 上传知识
             </button>
-            <button class="btn btn-primary" onclick="clearKnowledge()">
-                <i class="fas fa-trash"></i> 清空知识库
+            <button class="btn btn-primary" onclick="showKnowledgeLibrary()">
+                <i class="fas fa-database"></i> 我的知识库
             </button>
             <button class="btn btn-primary" onclick="clearChatHistory()">
                 <i class="fas fa-comments"></i> 清空聊天记录
@@ -568,6 +655,30 @@
         </div>
     </div>
 
+    <!-- 知识库列表模态框 -->
+    <div id="knowledgeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-database"></i> 我的知识库</h3>
+                <button class="close-btn" onclick="hideKnowledgeModal()">&times;</button>
+            </div>
+            <div id="knowledgeStatus"></div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                <button class="btn btn-primary" onclick="loadKnowledgeLibrary()">
+                    <i class="fas fa-refresh"></i> 刷新列表
+                </button>
+                <button class="btn btn-secondary" onclick="confirmClearAllKnowledge()">
+                    <i class="fas fa-trash"></i> 清空全部
+                </button>
+            </div>
+            <div id="knowledgeList" style="max-height: 400px; overflow-y: auto;">
+                <p style="color: #718096; text-align: center; padding: 2rem;">
+                    <i class="fas fa-spinner"></i> 加载中...
+                </p>
+            </div>
+        </div>
+    </div>
+
     <script>
         let currentMode = 'local';
         let currentMemoryId = Date.now();
@@ -655,6 +766,10 @@
                 
                 if (result.status === 0) {
                     showStatus(`文件 "${file.name}" 上传成功！已添加到知识库`, false);
+                    // 如果知识库模态框是打开的，刷新列表
+                    if (document.getElementById('knowledgeModal').style.display === 'flex') {
+                        setTimeout(loadKnowledgeLibrary, 1000);
+                    }
                 } else {
                     showStatus('上传失败：' + result.message, true);
                 }
@@ -681,6 +796,10 @@
                 
                 if (result.status === 0) {
                     showStatus(`文件 "${file.name}" 上传成功！已添加到知识库`, false);
+                    // 如果知识库模态框是打开的，刷新列表
+                    if (document.getElementById('knowledgeModal').style.display === 'flex') {
+                        setTimeout(loadKnowledgeLibrary, 1000);
+                    }
                     setTimeout(hideUploadModal, 2000);
                 } else {
                     showStatus('上传失败：' + result.message, true);
@@ -708,6 +827,10 @@
                 if (result.status === 0) {
                     showStatus(`文本添加成功！已添加到知识库 (${text.length} 字符)`, false);
                     document.getElementById('textInput').value = '';
+                    // 如果知识库模态框是打开的，刷新列表
+                    if (document.getElementById('knowledgeModal').style.display === 'flex') {
+                        setTimeout(loadKnowledgeLibrary, 1000);
+                    }
                 } else {
                     showStatus('添加失败：' + result.message, true);
                 }
@@ -734,6 +857,10 @@
                 if (result.status === 0) {
                     showStatus(`文本添加成功！已添加到知识库 (${text.length} 字符)`, false);
                     document.getElementById('modalTextInput').value = '';
+                    // 如果知识库模态框是打开的，刷新列表
+                    if (document.getElementById('knowledgeModal').style.display === 'flex') {
+                        setTimeout(loadKnowledgeLibrary, 1000);
+                    }
                     setTimeout(hideUploadModal, 2000);
                 } else {
                     showStatus('添加失败：' + result.message, true);
@@ -761,6 +888,10 @@
                 if (result.status === 0) {
                     showStatus(`路径添加成功！已添加到知识库: ${path}`, false);
                     document.getElementById('pathInput').value = '';
+                    // 如果知识库模态框是打开的，刷新列表
+                    if (document.getElementById('knowledgeModal').style.display === 'flex') {
+                        setTimeout(loadKnowledgeLibrary, 1000);
+                    }
                 } else {
                     showStatus('添加失败：' + result.message, true);
                 }
@@ -787,6 +918,10 @@
                 if (result.status === 0) {
                     showStatus(`路径添加成功！已添加到知识库: ${path}`, false);
                     document.getElementById('modalPathInput').value = '';
+                    // 如果知识库模态框是打开的，刷新列表
+                    if (document.getElementById('knowledgeModal').style.display === 'flex') {
+                        setTimeout(loadKnowledgeLibrary, 1000);
+                    }
                     setTimeout(hideUploadModal, 2000);
                 } else {
                     showStatus('添加失败：' + result.message, true);
@@ -814,6 +949,10 @@
                 
                 if (result.status === 0) {
                     showStatus(`音频转文字成功！文本已添加到知识库 (${file.name})`, false);
+                    // 如果知识库模态框是打开的，刷新列表
+                    if (document.getElementById('knowledgeModal').style.display === 'flex') {
+                        setTimeout(loadKnowledgeLibrary, 1000);
+                    }
                 } else {
                     showStatus('音频转文字失败：' + result.message, true);
                 }
@@ -822,23 +961,140 @@
             }
         }
 
-        async function clearKnowledge() {
+        function showKnowledgeLibrary() {
+            document.getElementById('knowledgeModal').style.display = 'flex';
+            loadKnowledgeLibrary();
+        }
+
+        function hideKnowledgeModal() {
+            document.getElementById('knowledgeModal').style.display = 'none';
+            document.getElementById('knowledgeStatus').innerHTML = '';
+        }
+
+        function showKnowledgeStatus(message, isError = false) {
+            const statusDiv = document.getElementById('knowledgeStatus');
+            let statusClass = 'status-message';
+            let icon = '';
+            
+            if (isError) {
+                statusClass = 'status-error';
+                icon = '<i class="fas fa-exclamation-triangle"></i>';
+            } else {
+                statusClass = 'status-success';
+                icon = '<i class="fas fa-check-circle"></i>';
+            }
+            
+            statusDiv.innerHTML = `<div class="${statusClass}">${icon} ${message}</div>`;
+        }
+
+        async function loadKnowledgeLibrary() {
+            const knowledgeListDiv = document.getElementById('knowledgeList');
+            knowledgeListDiv.innerHTML = '<p style="color: #718096; text-align: center; padding: 2rem;"><i class="fas fa-spinner"></i> 加载中...</p>';
+
+            try {
+                const response = await fetch('/dm/knowledges');
+                const result = await response.json();
+                
+                if (result.status === 0 && result.data && result.data.length > 0) {
+                    // 按knowledgeName分组，合并相同名称的知识
+                    const groupedKnowledge = {};
+                    result.data.forEach(knowledge => {
+                        if (!groupedKnowledge[knowledge.knowledgeName]) {
+                            groupedKnowledge[knowledge.knowledgeName] = {
+                                knowledgeName: knowledge.knowledgeName,
+                                indexes: []
+                            };
+                        }
+                        groupedKnowledge[knowledge.knowledgeName].indexes.push(knowledge.index);
+                    });
+                    
+                    // 将分组后的知识转换为数组
+                    const knowledgeArray = Object.values(groupedKnowledge);
+                    // 按第一个index排序
+                    knowledgeArray.sort((a, b) => {
+                        const minA = Math.min(...a.indexes);
+                        const minB = Math.min(...b.indexes);
+                        return minA - minB;
+                    });
+                    
+                    knowledgeListDiv.innerHTML = '';
+                    knowledgeArray.forEach((knowledge, index) => {
+                        const indexesStr = knowledge.indexes.sort((a, b) => a - b).join(', ');
+                        const count = knowledge.indexes.length;
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'knowledge-item';
+                        itemDiv.innerHTML = `
+                            <div class="knowledge-info">
+                                <div class="knowledge-name">
+                                    <i class="fas fa-file-alt"></i> ${knowledge.knowledgeName}
+                                </div>
+                                <div class="knowledge-meta">
+                                    分段数: ${count} | 索引号: ${indexesStr}
+                                </div>
+                            </div>
+                            <div class="knowledge-actions">
+                                <button class="btn-icon" onclick="deleteKnowledge('${knowledge.knowledgeName}')" title="删除此知识">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        `;
+                        knowledgeListDiv.appendChild(itemDiv);
+                    });
+                } else {
+                    knowledgeListDiv.innerHTML = `
+                        <div class="empty-knowledge">
+                            <i class="fas fa-inbox"></i>
+                            <p>知识库为空，请先上传一些知识吧！</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                knowledgeListDiv.innerHTML = `
+                    <div class="status-error">
+                        <i class="fas fa-exclamation-triangle"></i> 加载失败：${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function deleteKnowledge(knowledgeName) {
+            if (!confirm(`确定要删除 "${knowledgeName}" 吗？`)) return;
+
+            try {
+                const response = await fetch(`/dm/knowledges?knowledgeName=${encodeURIComponent(knowledgeName)}`, {
+                    method: 'DELETE'
+                });
+                const result = await response.json();
+                
+                if (result.status === 0) {
+                    showKnowledgeStatus(`知识 "${knowledgeName}" 已删除`, false);
+                    loadKnowledgeLibrary();
+                } else {
+                    showKnowledgeStatus('删除失败：' + result.message, true);
+                }
+            } catch (error) {
+                showKnowledgeStatus('删除失败：网络错误', true);
+            }
+        }
+
+        async function confirmClearAllKnowledge() {
             if (!confirm('确定要清空所有知识库吗？此操作不可恢复！')) return;
 
             try {
-                showStatus('正在清空知识库...', false, true);
+                showKnowledgeStatus('正在清空知识库...', false);
                 const response = await fetch('/dm/clear', {
                     method: 'DELETE'
                 });
                 const result = await response.json();
                 
                 if (result.status === 0) {
-                    showStatus('知识库已清空！所有文档已移除', false);
+                    showKnowledgeStatus('知识库已清空！所有文档已移除', false);
+                    loadKnowledgeLibrary();
                 } else {
-                    showStatus('清空失败：' + result.message, true);
+                    showKnowledgeStatus('清空失败：' + result.message, true);
                 }
             } catch (error) {
-                showStatus('清空失败：网络错误', true);
+                showKnowledgeStatus('清空失败：网络错误', true);
             }
         }
 

@@ -26,11 +26,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
 public class UploadText {
-
 
     @Autowired
     private EmbeddingStoreFactory embeddingStoreFactory;
@@ -40,7 +40,6 @@ public class UploadText {
 
     @Autowired
     private KnowledgeService knowledgeService;
-
 
     public void clealKnowledgeLibrary(String userId) {
         try {
@@ -59,7 +58,6 @@ public class UploadText {
 
         }
     }
-
 
     public void UploadKnowledgeLibraryByPath(String path, String userId) {
         try {
@@ -97,8 +95,6 @@ public class UploadText {
                 index++;
                 knowledgeService.addKnowledge(knowledge);
             }
-
-
 
             //还需要将用户ID的所存的知识文档的ID相关联
             System.out.println("✅ 文件 " + path + " 已成功向量化并存入数据库。");
@@ -239,8 +235,6 @@ public class UploadText {
         }
     }
 
-
-
 //    public void upLoadByHand(String path ,String userId){
 //
 //        try {
@@ -300,9 +294,69 @@ public class UploadText {
         return chunks;
     }
 
+//    private List<String> splitManually(String text, int maxLength, int overlap) {
+//        List<String> chunks = new ArrayList<>();
+//
+//        if (text == null || text.isEmpty()) {
+//            return chunks;
+//        }
+//
+//        // 使用正则表达式根据句子进行分割
+//        String[] sentences = text.split("(?<=[。！？])\\s*");
+//        StringBuilder chunkBuilder = new StringBuilder();
+//        int currentLength = 0;
+//
+//        for (String sentence : sentences) {
+//            int sentenceLength = sentence.length();
+//
+//            if (currentLength + sentenceLength > maxLength) {
+//                // 超过最大长度时，将当前的chunk添加到列表中
+//                if (chunkBuilder.length() > 0) {
+//                    chunks.add(chunkBuilder.toString().trim());
+//                }
+//                // 清空当前的chunk并开始新的分片
+//                chunkBuilder.setLength(0);
+//                currentLength = 0;
+//            }
+//
+//            chunkBuilder.append(sentence).append(" ");
+//            currentLength += sentenceLength;
+//
+//            // 如果当前分片已接近最大长度，且句子没有完全加入，开始下一个分片
+//            if (currentLength >= maxLength) {
+//                chunks.add(chunkBuilder.toString().trim());
+//                chunkBuilder.setLength(0);
+//                currentLength = 0;
+//            }
+//        }
+//        // 最后一个分片
+//        if (chunkBuilder.length() > 0) {
+//            chunks.add(chunkBuilder.toString().trim());
+//        }
+//        return chunks;
+//    }
 
+    private Embedding normalizeEmbedding(Embedding embedding) {
+        float[] vector = embedding.vector();
+        double norm = 0.0;
+        for (float v : vector) {
+            norm += v * v;
+        }
+        norm = Math.sqrt(norm);
+
+        float[] normalized = new float[vector.length];
+        for (int i = 0; i < vector.length; i++) {
+            normalized[i] = (float) (vector[i] / norm);
+        }
+        return new Embedding(normalized);
+    }
 
     public List<String> uploadManually(String content,String userId) {
+
+        content = content
+                .replaceAll("\\s+", " ")
+                .replaceAll("([。！？])+", "$1")  // 连续标点合并
+                .trim();
 
         List<String> ids=new ArrayList<>();
 
@@ -313,11 +367,14 @@ public class UploadText {
         for (int i = 0; i < chunks.size(); i++) {
             String chunk = chunks.get(i);
             TextSegment segment = TextSegment.from(chunk);
+//
+//            Embedding rawEmbedding = embeddingModel.embed(segment).content();
+//            Embedding normalized = normalizeEmbedding(rawEmbedding);
+//            String id = embeddingStore.add(normalized, segment);
 
             // 生成 embedding 向量
             Embedding embedding = embeddingModel.embed(segment).content();
-
-            // 存入数据库
+            //存入数据库
             String id=embeddingStore.add(embedding, segment);
             ids.add(id);
             System.out.println("✅ 第 " + (i + 1) + " 片已上传，长度：" + chunk.length()+"id:::"+id);
